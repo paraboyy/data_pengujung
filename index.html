@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>QR Scan Booth</title>
-    <script src="https://unpkg.com/html5-qrcode"></script>
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#2196f3" />
   </head>
@@ -13,9 +13,13 @@
     <input type="text" id="booth" placeholder="Nama Booth" />
     <script>
       const scriptUrl = "https://script.google.com/macros/s/AKfycbzHnDmiCP5ga6LGpaj-6i0qUOyn2rSb30iQf473Ze5oVeSE-a55AJEzHVdpIwLgc8I/exec";
-      function onScanSuccess(decodedText) {
-        document.getElementById("result").textContent = ID: ${decodedText};
+
+      function onScanSuccess(decodedText, decodedResult) {
+        // Update result on successful scan
+        document.getElementById("result").textContent = `ID: ${decodedText}`;
         const booth = document.getElementById("booth").value;
+
+        // Send data to the server
         fetch(scriptUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -26,11 +30,21 @@
         });
       }
 
-      new Html5Qrcode("reader").start(
-        { facingMode: "environment" },
-        { fps: 10, qrbox: 250 },
-        onScanSuccess
-      );
+      // Initialize Html5Qrcode with camera access
+      const html5QrCode = new Html5Qrcode("reader");
+
+      // Start the camera for scanning QR/Barcodes
+      html5QrCode.start(
+        { facingMode: "environment" }, // Access back camera
+        {
+          fps: 10, // Frames per second
+          qrbox: 250 // QR box size
+        },
+        onScanSuccess // Success callback function
+      ).catch((err) => {
+        console.error("Error starting the QR code scanner", err);
+        document.getElementById("result").textContent = "Failed to access the camera.";
+      });
     </script>
   </body>
 </html>
