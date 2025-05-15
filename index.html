@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>QR Scan Booth</title>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#2196f3" />
+  </head>
+  <body>
+    <h2>Scan QR Peserta</h2>
+    <div id="reader" style="width: 300px"></div>
+    <p id="result">Belum ada scan</p>
+    <input type="text" id="booth" placeholder="Nama Booth" />
+    <script>
+      const scriptUrl = "https://script.google.com/macros/s/AKfycbzHnDmiCP5ga6LGpaj-6i0qUOyn2rSb30iQf473Ze5oVeSE-a55AJEzHVdpIwLgc8I/exec";
+      function onScanSuccess(decodedText) {
+        document.getElementById("result").textContent = ID: ${decodedText};
+        const booth = document.getElementById("booth").value;
+        fetch(scriptUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id_peserta: decodedText,
+            nama_booth: booth
+          })
+        });
+      }
+
+      new Html5Qrcode("reader").start(
+        { facingMode: "environment" },
+        { fps: 10, qrbox: 250 },
+        onScanSuccess
+      );
+    </script>
+  </body>
+</html>
